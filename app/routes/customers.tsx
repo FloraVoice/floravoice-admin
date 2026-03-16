@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { usersApi, type User, ApiError } from "~/lib/api";
 import { Button } from "~/components/ui/button";
@@ -14,12 +14,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 export function meta() {
   return [{ title: "Customers — FloraVoice Admin" }];
@@ -192,60 +194,74 @@ export default function Customers() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : customers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No customers found.</p>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-80">ID</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead className="w-24 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.map((customer) => (
-                <TableRow key={customer.id}>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{customer.id}</TableCell>
-                  <TableCell>{customer.email}</TableCell>
-                  <TableCell className="font-medium">{customer.username}</TableCell>
-                  <TableCell className="text-muted-foreground">{customer.address}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditTarget(customer)}
-                      aria-label="Edit"
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteTarget(customer)}
-                      aria-label="Delete"
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </TableCell>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-medium text-muted-foreground">
+            {isLoading ? "Loading…" : `${customers.length} customer${customers.length !== 1 ? "s" : ""}`}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+              <ShoppingBag className="size-10 text-muted-foreground/40" />
+              <p className="text-sm font-medium">No customers yet</p>
+              <p className="text-xs text-muted-foreground">Add your first customer to get started.</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-80">ID</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead className="w-24 text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {customers.map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{customer.id}</TableCell>
+                    <TableCell>{customer.email}</TableCell>
+                    <TableCell className="font-medium">{customer.username}</TableCell>
+                    <TableCell className="text-muted-foreground">{customer.address || "—"}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditTarget(customer)}
+                        aria-label="Edit"
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteTarget(customer)}
+                        aria-label="Delete"
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Create Dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Customer</DialogTitle>
+            <DialogDescription>Create a new customer account.</DialogDescription>
           </DialogHeader>
           <CustomerFormFields values={createForm} onChange={setCreateForm} />
           <DialogFooter>
@@ -253,7 +269,7 @@ export default function Customers() {
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={createLoading}>
-              {createLoading ? "Creating…" : "Create"}
+              {createLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Creating…</> : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -264,6 +280,7 @@ export default function Customers() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Customer</DialogTitle>
+            <DialogDescription>Update details for <strong>{editTarget?.username}</strong>.</DialogDescription>
           </DialogHeader>
           <CustomerFormFields values={editForm} onChange={setEditForm} isEdit />
           <DialogFooter>
@@ -271,7 +288,7 @@ export default function Customers() {
               Cancel
             </Button>
             <Button onClick={handleEdit} disabled={editLoading}>
-              {editLoading ? "Saving…" : "Save"}
+              {editLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Saving…</> : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -282,18 +299,18 @@ export default function Customers() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Customer</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Are you sure you want to delete{" "}
             <span className="font-medium text-foreground">{deleteTarget?.username}</span>?
-            This action cannot be undone.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleteLoading}>
-              {deleteLoading ? "Deleting…" : "Delete"}
+              {deleteLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Deleting…</> : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

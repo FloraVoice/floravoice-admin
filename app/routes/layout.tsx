@@ -1,5 +1,5 @@
 import { Navigate, NavLink, Outlet, useNavigate } from "react-router";
-import { Flower2, Users, ShoppingBag, LogOut, ClipboardList } from "lucide-react";
+import { Flower2, Users, ShoppingBag, LogOut, ClipboardList, Loader2 } from "lucide-react";
 import { useAuth } from "~/context/auth-context";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import {
@@ -24,7 +24,7 @@ export default function Layout() {
   if (auth.isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <span className="text-muted-foreground text-sm">Loading…</span>
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -43,9 +43,14 @@ export default function Layout() {
       {/* Sidebar */}
       <nav className="flex w-60 flex-col border-r bg-sidebar text-sidebar-foreground">
         {/* Logo */}
-        <div className="flex h-14 items-center px-4">
-          <Flower2 className="mr-2 size-5 text-primary" />
-          <span className="font-semibold tracking-tight">FloraVoice</span>
+        <div className="flex h-14 items-center gap-2.5 px-4">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary">
+            <Flower2 className="size-4 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-semibold tracking-tight">FloraVoice</span>
+            <span className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest">Admin</span>
+          </div>
         </div>
 
         <Separator className="bg-sidebar-border" />

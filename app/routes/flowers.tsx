@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2, Flower2 } from "lucide-react";
 import { toast } from "sonner";
 import { flowersApi, type FlowerResponse, ApiError } from "~/lib/api";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -14,12 +15,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 export function meta() {
   return [{ title: "Flowers — FloraVoice Admin" }];
@@ -79,6 +82,16 @@ function FlowerFormFields({
       </div>
     </div>
   );
+}
+
+function StockBadge({ quantity }: { quantity: number }) {
+  if (quantity === 0) {
+    return <Badge variant="destructive">Out of stock</Badge>;
+  }
+  if (quantity < 10) {
+    return <Badge variant="outline" className="border-orange-400 text-orange-600">Low stock</Badge>;
+  }
+  return <Badge variant="secondary">{quantity}</Badge>;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -193,60 +206,76 @@ export default function Flowers() {
       </div>
 
       {/* Table */}
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : flowers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No flowers yet.</p>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-80">ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead className="w-24 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {flowers.map((flower) => (
-                <TableRow key={flower.id}>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{flower.id}</TableCell>
-                  <TableCell className="font-medium">{flower.name}</TableCell>
-                  <TableCell>${flower.price.toFixed(2)}</TableCell>
-                  <TableCell>{flower.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditTarget(flower)}
-                      aria-label="Edit"
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteTarget(flower)}
-                      aria-label="Delete"
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </TableCell>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-medium text-muted-foreground">
+            {isLoading ? "Loading…" : `${flowers.length} flower${flowers.length !== 1 ? "s" : ""}`}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : flowers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+              <Flower2 className="size-10 text-muted-foreground/40" />
+              <p className="text-sm font-medium">No flowers yet</p>
+              <p className="text-xs text-muted-foreground">Add your first flower to get started.</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-80">ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead className="w-24 text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {flowers.map((flower) => (
+                  <TableRow key={flower.id}>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{flower.id}</TableCell>
+                    <TableCell className="font-medium">{flower.name}</TableCell>
+                    <TableCell>${flower.price.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <StockBadge quantity={flower.quantity} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditTarget(flower)}
+                        aria-label="Edit"
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteTarget(flower)}
+                        aria-label="Delete"
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Create Dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Flower</DialogTitle>
+            <DialogDescription>Add a new flower to your catalogue.</DialogDescription>
           </DialogHeader>
           <FlowerFormFields values={createForm} onChange={setCreateForm} />
           <DialogFooter>
@@ -254,7 +283,7 @@ export default function Flowers() {
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={createLoading}>
-              {createLoading ? "Creating…" : "Create"}
+              {createLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Creating…</> : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -265,6 +294,7 @@ export default function Flowers() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Flower</DialogTitle>
+            <DialogDescription>Update the details for <strong>{editTarget?.name}</strong>.</DialogDescription>
           </DialogHeader>
           <FlowerFormFields values={editForm} onChange={setEditForm} />
           <DialogFooter>
@@ -272,7 +302,7 @@ export default function Flowers() {
               Cancel
             </Button>
             <Button onClick={handleEdit} disabled={editLoading}>
-              {editLoading ? "Saving…" : "Save"}
+              {editLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Saving…</> : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -286,11 +316,11 @@ export default function Flowers() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Flower</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Are you sure you want to delete{" "}
             <span className="font-medium text-foreground">{deleteTarget?.name}</span>?
-            This action cannot be undone.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
@@ -301,7 +331,7 @@ export default function Flowers() {
               onClick={handleDelete}
               disabled={deleteLoading}
             >
-              {deleteLoading ? "Deleting…" : "Delete"}
+              {deleteLoading ? <><Loader2 className="mr-2 size-4 animate-spin" />Deleting…</> : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
