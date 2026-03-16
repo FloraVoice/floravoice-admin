@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus, Loader2, Users } from "lucide-react";
+import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { adminsApi, type Admin, ApiError } from "~/lib/api";
 import { Button } from "~/components/ui/button";
@@ -23,6 +24,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export function meta() {
   return [{ title: "Admins — FloraVoice Admin" }];
@@ -176,14 +178,20 @@ export default function Admins() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-medium text-muted-foreground">
-            {isLoading ? "Loading…" : `${admins.length} admin${admins.length !== 1 ? "s" : ""}`}
+            {isLoading ? <Skeleton className="h-4 w-24" /> : `${admins.length} admin${admins.length !== 1 ? "s" : ""}`}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="size-6 animate-spin text-muted-foreground" />
-            </div>
+            <TableSkeleton
+              columns={[
+                { width: "320px" },
+                {},
+                {},
+                {},
+                { align: "right" },
+              ]}
+            />
           ) : admins.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
               <Users className="size-10 text-muted-foreground/40" />

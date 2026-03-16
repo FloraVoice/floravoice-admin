@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus, Loader2, ShoppingBag } from "lucide-react";
+import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { usersApi, type User, ApiError } from "~/lib/api";
 import { Button } from "~/components/ui/button";
@@ -22,6 +23,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export function meta() {
   return [{ title: "Customers — FloraVoice Admin" }];
@@ -197,14 +199,20 @@ export default function Customers() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-medium text-muted-foreground">
-            {isLoading ? "Loading…" : `${customers.length} customer${customers.length !== 1 ? "s" : ""}`}
+            {isLoading ? <Skeleton className="h-4 w-24" /> : `${customers.length} customer${customers.length !== 1 ? "s" : ""}`}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="size-6 animate-spin text-muted-foreground" />
-            </div>
+            <TableSkeleton
+              columns={[
+                { width: "320px" },
+                {},
+                {},
+                {},
+                { align: "right" },
+              ]}
+            />
           ) : customers.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
               <ShoppingBag className="size-10 text-muted-foreground/40" />

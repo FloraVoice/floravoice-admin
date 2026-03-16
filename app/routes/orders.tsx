@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Eye } from "lucide-react";
+import { TableSkeleton } from "~/components/table-skeleton";
 import { toast } from "sonner";
 import { ordersApi, type OrderResponse, ApiError } from "~/lib/api";
 import { Button } from "~/components/ui/button";
@@ -42,7 +43,17 @@ export default function Orders() {
       <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <div className="rounded-md border">
+          <TableSkeleton
+            columns={[
+              { width: "320px" },
+              { width: "320px" },
+              {},
+              {},
+              { align: "right" },
+            ]}
+          />
+        </div>
       ) : orders.length === 0 ? (
         <p className="text-sm text-muted-foreground">No orders yet.</p>
       ) : (
