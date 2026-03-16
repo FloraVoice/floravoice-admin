@@ -7,5 +7,6 @@ export default [
     route("flowers", "routes/flowers.tsx"),
     route("admins", "routes/admins.tsx"),
     route("customers", "routes/customers.tsx"),
+    route("orders", "routes/orders.tsx"),
   ]),
 ] satisfies RouteConfig;

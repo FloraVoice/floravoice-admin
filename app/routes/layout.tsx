@@ -1,5 +1,5 @@
 import { Navigate, NavLink, Outlet, useNavigate } from "react-router";
-import { Flower2, Users, ShoppingBag, LogOut } from "lucide-react";
+import { Flower2, Users, ShoppingBag, LogOut, ClipboardList } from "lucide-react";
 import { useAuth } from "~/context/auth-context";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import {
@@ -14,6 +14,7 @@ const navItems = [
   { to: "/flowers", label: "Flowers", icon: Flower2 },
   { to: "/admins", label: "Admins", icon: Users },
   { to: "/customers", label: "Customers", icon: ShoppingBag },
+  { to: "/orders", label: "Orders", icon: ClipboardList },
 ];
 
 export default function Layout() {

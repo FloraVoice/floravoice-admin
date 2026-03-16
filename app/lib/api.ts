@@ -178,6 +178,30 @@ export const usersApi = {
   },
 };
 
+export interface OrderItemResponse {
+  id: string;
+  flower_id: string;
+  quantity: number;
+  price_at_purchase: number;
+}
+
+export interface OrderResponse {
+  id: string;
+  user_id: string;
+  created_at: string;
+  items: OrderItemResponse[];
+}
+
+export const ordersApi = {
+  list(): Promise<OrderResponse[]> {
+    return request<OrderResponse[]>("/orders/admin/all");
+  },
+
+  get(id: string): Promise<OrderResponse> {
+    return request<OrderResponse>(`/orders/${id}`);
+  },
+};
+
 export const flowersApi = {
   list(): Promise<FlowerResponse[]> {
     return request<FlowerResponse[]>("/flowers/");
